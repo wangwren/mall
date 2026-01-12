@@ -1,0 +1,60 @@
+server:
+  port: 8060
+
+spring:
+  application:
+    name: mall-gateway
+  cloud:
+    nacos:
+      # 配置中心
+      config:
+        server-addr: 127.0.0.1:8848
+        # 加载的文件格式
+        file-extension: yml
+        namespace: gateway
+        group: DEFAULT_GROUP  # 用来区分测试还是生产环境
+      discovery:
+        server-addr: 127.0.0.1:8848
+    # 路由规则
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              # 关闭默认的路由规则，会根据服务中心的服务名作为路径实现路由规则
+              enabled: false
+          routes:
+            - id: order
+              uri: lb://mall-order
+              predicates:
+                - Path=/mall-order/**
+            # product服务
+            - id: product
+              uri: lb://mall-product
+              predicates:
+                # 注意路由顺序，下面有一个 app/** ,如果在其后不会生效,先匹配app/**了
+                - Path=/app/product/**
+              filters:
+                # 映射配置，路由重写
+                - RewritePath=/app/(?<segment>.*),/$\{segment}
+            # 后管服务
+            - id: renren-admin
+              uri: lb://renren-admin
+              predicates:
+                - Path=/app/**
+              filters:
+                # 映射配置，前端访问带有app，app --> renren-admin; renren-admin是后端项目配置的项目访问前缀
+                - RewritePath=/app/(?<segment>.*),/renren-admin/$\{segment}
+#          default-filters:
+#            - StripPrefix=1
+
+  # 配置中心读取的文件
+  config:
+    import:
+      - optional:nacos:application.yml
+
+
+
+
+
+

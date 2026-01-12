@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        # 加载的文件格式
+        file-extension: yml
+        namespace: product
+        group: DEFAULT_GROUP  # 用来区分测试还是生产环境
+  # 配置中心读取的文件
+  config:
+    import:
+      - optional:nacos:application.yml
+      - optional:nacos:mybatis.yml
+      - optional:nacos:datasource.yml

@@ -1,0 +1,78 @@
+package com.core.mall.ware.controller;
+
+import com.core.mall.common.page.PageData;
+import com.core.mall.common.utils.Result;
+import com.core.mall.common.validator.AssertUtils;
+import com.core.mall.common.validator.ValidatorUtils;
+import com.core.mall.common.validator.group.AddGroup;
+import com.core.mall.common.validator.group.DefaultGroup;
+import com.core.mall.common.validator.group.UpdateGroup;
+import com.core.mall.ware.dto.WareInfoDTO;
+import com.core.mall.ware.service.WareInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
+
+
+/**
+ * 仓库信息
+ *
+ * @author wangweiren wangwren0906@gmail.com
+ * @since 1.0.0 2025-12-29
+ */
+@RestController
+@RequestMapping("ware/wareinfo")
+public class WareInfoController {
+    @Autowired
+    private WareInfoService wareInfoService;
+
+    @GetMapping("page")
+    public Result<PageData<WareInfoDTO>> page(@Parameter(hidden = true) @RequestParam Map<String, Object> params){
+        PageData<WareInfoDTO> page = wareInfoService.page(params);
+
+        return new Result<PageData<WareInfoDTO>>().ok(page);
+    }
+
+    @GetMapping("{id}")
+    public Result<WareInfoDTO> get(@PathVariable("id") Long id){
+        WareInfoDTO data = wareInfoService.get(id);
+
+        return new Result<WareInfoDTO>().ok(data);
+    }
+
+    @PostMapping
+    public Result save(@RequestBody WareInfoDTO dto){
+        //效验数据
+        ValidatorUtils.validateEntity(dto, AddGroup.class, DefaultGroup.class);
+
+        wareInfoService.save(dto);
+
+        return new Result();
+    }
+
+    @PutMapping
+    public Result update(@RequestBody WareInfoDTO dto){
+        //效验数据
+        ValidatorUtils.validateEntity(dto, UpdateGroup.class, DefaultGroup.class);
+
+        wareInfoService.update(dto);
+
+        return new Result();
+    }
+
+    @DeleteMapping
+    public Result delete(@RequestBody Long[] ids){
+        //效验数据
+        AssertUtils.isArrayEmpty(ids, "id");
+
+        wareInfoService.delete(ids);
+
+        return new Result();
+    }
+
+
+}
