@@ -24,10 +24,10 @@ spring:
               # 关闭默认的路由规则，会根据服务中心的服务名作为路径实现路由规则
               enabled: false
           routes:
-            - id: order
-              uri: lb://mall-order
-              predicates:
-                - Path=/mall-order/**
+#            - id: order
+#              uri: lb://mall-order
+#              predicates:
+#                - Path=/mall-order/**
             # product服务
             - id: product
               uri: lb://mall-product

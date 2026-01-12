@@ -155,7 +155,23 @@ mvn test -Dtest=ClassName#methodName
 数据库凭据从 Nacos 配置中心加载，不在本地文件中。需要在 Nacos 中更新 `datasource.yml`，而非项目文件。
 
 ### 网关路由
-Gateway 默认去除第一段路径（`StripPrefix=1`）。请求 `/mall-order/order/list` 会路由到 `mall-order` 服务的 `/order/list`。
+Gateway 使用自定义路由规则（已关闭默认的服务名路由）：
+
+**主要路由规则**：
+1. **商品服务路由**：
+   - 前端请求：`/app/product/**`
+   - 路由目标：`lb://mall-product`
+   - 路径重写：`/app/product/xxx` → `/product/xxx`（使用 `RewritePath=/app/(?<segment>.*)`,`/$\{segment}`）
+
+2. **后台管理服务路由**：
+   - 前端请求：`/app/**`
+   - 路由目标：`lb://renren-admin`
+   - 路径重写：`/app/xxx` → `/renren-admin/xxx`（使用 `RewritePath=/app/(?<segment>.*)`,`/renren-admin/$\{segment}`）
+
+**注意事项**：
+- 路由顺序很重要，`/app/product/**` 必须在 `/app/**` 之前匹配，否则会被后者拦截
+- 配置文件位置：`mall-gateway/src/main/resources/application.yml`
+- 已注释的默认全局过滤器 `StripPrefix=1` 不再使用
 
 ### 泛型类型解析
 继承 `CrudServiceImpl` 时，确保类型参数顺序正确: `<Mapper, Entity, DTO>`。框架使用反射在运行时确定这些类型。
