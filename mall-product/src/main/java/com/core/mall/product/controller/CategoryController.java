@@ -76,7 +76,7 @@ public class CategoryController {
         //效验数据
         AssertUtils.isArrayEmpty(ids, "id");
 
-        categoryService.delete(ids);
+        categoryService.deleteBatch(ids);
 
         return new Result();
     }

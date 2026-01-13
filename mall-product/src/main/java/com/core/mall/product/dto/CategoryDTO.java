@@ -1,5 +1,7 @@
 package com.core.mall.product.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,10 +19,15 @@ import java.util.List;
 public class CategoryDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
+	/**
+	 * 前端Long类型精度丢失处理，返回到前端时转成字符串
+	 */
+	@JsonSerialize(using = ToStringSerializer.class)
 	private Long catId;
 
 	private String name;
 
+	@JsonSerialize(using = ToStringSerializer.class)
 	private Long parentCid;
 
 	private Integer catLevel;

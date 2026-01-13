@@ -43,6 +43,12 @@ public class CategoryServiceImpl extends CrudServiceImpl<CategoryDao, CategoryEn
         // 2. 构建树并排序
         return buildCategoryTree(categoryDTOS);
     }
+
+    @Override
+    public void deleteBatch(Long[] ids) {
+        baseDao.deleteBatchIds(Arrays.asList(ids));
+    }
+
     /**
      * 构建树形分类结构
      */

@@ -1,5 +1,7 @@
 package com.core.mall.product.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -19,6 +21,7 @@ public class CategoryEntity {
     /**
      * 分类id
      */
+    @TableId
 	private Long catId;
     /**
      * 分类名称
@@ -34,7 +37,11 @@ public class CategoryEntity {
 	private Integer catLevel;
     /**
      * 是否显示[0-不显示，1显示]
+     * 逻辑删除逻辑，可以不用全局配置指定了
+     * value 表示逻辑未删除值
+     * delval 表示逻辑已删除值
      */
+    @TableLogic(value = "1", delval = "0")
 	private Integer showStatus;
     /**
      * 排序

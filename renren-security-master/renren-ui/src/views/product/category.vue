@@ -52,6 +52,8 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 弹窗, 新增 / 修改 -->
+    <add-or-update ref="addOrUpdateRef" @refreshDataList="getDataList"></add-or-update>
   </div>
 </template>
 
@@ -59,6 +61,7 @@
 import { reactive, ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import baseService from "@/service/baseService";
+import AddOrUpdate from "./category-add-or-update.vue";
 
 // 表单数据
 const dataForm = reactive({
@@ -69,39 +72,51 @@ const dataForm = reactive({
 const dataList = ref<any[]>([]);
 const dataListLoading = ref(false);
 
+// 新增/修改弹窗
+const addOrUpdateRef = ref();
+
 // 获取数据列表
 const getDataList = () => {
   dataListLoading.value = true;
   baseService.get("/product/category/pageWithTree", dataForm).then((res) => {
-    dataList.value = res.data || [];
+    if (res.code === 0) {
+      dataList.value = res.data || [];
+    } else {
+      ElMessage.error(res.msg || "获取数据失败");
+    }
     dataListLoading.value = false;
-  }).catch(() => {
+  }).catch((err) => {
+    ElMessage.error(err?.message || "获取数据失败，请稍后重试");
     dataListLoading.value = false;
   });
 };
 
 // 新增/修改
-const addOrUpdateHandle = (catId?: number) => {
-  ElMessage.info(catId ? `修改分类，ID: ${catId}` : "新增分类");
-  // TODO: 打开弹窗进行新增/修改操作
+const addOrUpdateHandle = (catId?: string | number) => {
+  addOrUpdateRef.value.init(catId);
 };
 
 // 添加子分类
 const addChildHandle = (row: any) => {
-  ElMessage.info(`为 "${row.name}" 添加子分类`);
-  // TODO: 打开弹窗进行新增子分类操作
+  addOrUpdateRef.value.init2(row);
 };
 
 // 删除
-const deleteHandle = (catId: number) => {
+const deleteHandle = (catId: string | number) => {
   ElMessageBox.confirm("确定要删除该分类吗？删除后无法恢复！", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
   }).then(() => {
-    baseService.delete(`/product/category/${catId}`, {}).then(() => {
-      ElMessage.success("删除成功");
-      getDataList();
+    baseService.delete("/product/category", [catId]).then((res) => {
+      if (res.code === 0) {
+        ElMessage.success("删除成功");
+        getDataList();
+      } else {
+        ElMessage.error(res.msg || "删除失败");
+      }
+    }).catch((err) => {
+      ElMessage.error(err?.message || "删除失败，请稍后重试");
     });
   }).catch(() => {
     // 取消删除

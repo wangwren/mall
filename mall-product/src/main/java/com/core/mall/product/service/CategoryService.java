@@ -17,4 +17,6 @@ import java.util.Map;
 public interface CategoryService extends CrudService<CategoryEntity, CategoryDTO> {
 
     List<CategoryDTO> pageWithTree(Map<String, Object> params);
+
+    void deleteBatch(Long[] ids);
 }
