@@ -1,6 +1,7 @@
 package com.core.mall.product.controller;
 
 import com.core.mall.common.page.PageData;
+import com.core.mall.common.utils.ConvertUtils;
 import com.core.mall.common.utils.Result;
 import com.core.mall.common.validator.AssertUtils;
 import com.core.mall.common.validator.ValidatorUtils;
@@ -8,6 +9,7 @@ import com.core.mall.common.validator.group.AddGroup;
 import com.core.mall.common.validator.group.DefaultGroup;
 import com.core.mall.common.validator.group.UpdateGroup;
 import com.core.mall.product.dto.CategoryDTO;
+import com.core.mall.product.entity.CategoryEntity;
 import com.core.mall.product.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -78,6 +80,14 @@ public class CategoryController {
 
         categoryService.deleteBatch(ids);
 
+        return new Result();
+    }
+
+    @PutMapping("/batch")
+    public Result batchUpdate(@RequestBody List<CategoryDTO> categories) {
+        // 批量更新 catId, parentCid, catLevel, sort 字段
+        List<CategoryEntity> categoryEntities = ConvertUtils.sourceToTarget(categories, CategoryEntity.class);
+        categoryService.updateBatchById(categoryEntities);
         return new Result();
     }
 
