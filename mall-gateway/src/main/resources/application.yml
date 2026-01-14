@@ -28,6 +28,15 @@ spring:
 #              uri: lb://mall-order
 #              predicates:
 #                - Path=/mall-order/**
+            # third-party服务
+            - id: third-party
+              uri: lb://mall-third-party
+              predicates:
+                # 注意路由顺序，下面有一个 app/** ,如果在其后不会生效,先匹配app/**了
+                - Path=/app/thirdparty/**
+              filters:
+                # 映射配置，路由重写
+                - RewritePath=/app/(?<segment>.*),/$\{segment}
             # product服务
             - id: product
               uri: lb://mall-product

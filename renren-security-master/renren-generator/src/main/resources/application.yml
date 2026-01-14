@@ -15,7 +15,7 @@ spring:
 
     #PostgreSQL配置
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/mall_wms
+    url: jdbc:postgresql://localhost:5432/mall_pms
     username: root
     password: root
   jackson:

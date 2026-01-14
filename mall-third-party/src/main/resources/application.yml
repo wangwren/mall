@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: mall-third-party
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      discovery:
+        namespace: third-party
+      config:
+        namespace: third-party
+        file-extension: yml
+        refresh-enabled: true
+        shared-configs:
+          - data-id: application.yml
+            refresh: true
+server:
+  port: 30000

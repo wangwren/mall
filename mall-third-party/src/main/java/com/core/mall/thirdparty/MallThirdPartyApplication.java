@@ -1,4 +1,4 @@
-package com.core.mall.ware;
+package com.core.mall.thirdparty;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,9 +6,9 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication(scanBasePackages = "com.core.mall")
 @EnableDiscoveryClient
-public class MallWareApplication {
+public class MallThirdPartyApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MallWareApplication.class);
+        SpringApplication.run(MallThirdPartyApplication.class);
     }
 }

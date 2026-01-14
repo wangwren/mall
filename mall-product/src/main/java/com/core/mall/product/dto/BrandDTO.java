@@ -1,5 +1,7 @@
 package com.core.mall.product.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,6 +18,7 @@ import java.util.Date;
 public class BrandDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
+	@JsonSerialize(using = ToStringSerializer.class)
 	private Long brandId;
 
 	private String name;

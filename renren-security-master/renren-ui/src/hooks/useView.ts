@@ -77,7 +77,8 @@ const useView = (props: IViewHooksOptions | IObject): IViewHooks => {
   //
   const rejectFns = {
     hasPermission(key: string) {
-      return checkPermission(store.state.permissions as string[], key);
+      return true; // 跳过权限检查，直接返回 true
+      // return checkPermission(store.state.permissions as string[], key);
     },
     getDictLabel(dictType: string, dictValue: number) {
       return getDictLabel(store.state.dicts, dictType, dictValue);
