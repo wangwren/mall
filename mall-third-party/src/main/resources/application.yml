@@ -1,17 +1,12 @@
 spring:
-  application:
-    name: mall-third-party
+  config:
+    import:
+      - optional:nacos:application.yml
+      - optional:nacos:cos.yml
   cloud:
     nacos:
-      server-addr: 127.0.0.1:8848
-      discovery:
-        namespace: third-party
       config:
-        namespace: third-party
+        server-addr: 127.0.0.1:8848
+        namespace: thirdparty
         file-extension: yml
-        refresh-enabled: true
-        shared-configs:
-          - data-id: application.yml
-            refresh: true
-server:
-  port: 30000
+
