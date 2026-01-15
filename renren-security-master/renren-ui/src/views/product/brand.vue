@@ -12,7 +12,19 @@
       <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
               <el-table-column prop="brandId" label="品牌id" header-align="center" align="center"></el-table-column>
               <el-table-column prop="name" label="品牌名" header-align="center" align="center"></el-table-column>
-              <el-table-column prop="logo" label="品牌logo地址" header-align="center" align="center"></el-table-column>
+              <el-table-column prop="logo" label="品牌Logo" header-align="center" align="center" width="120">
+                <template v-slot="scope">
+                  <el-image
+                    v-if="scope.row.logo"
+                    :src="scope.row.logo"
+                    :preview-src-list="[scope.row.logo]"
+                    fit="contain"
+                    style="width: 60px; height: 60px;"
+                    preview-teleported
+                  />
+                  <span v-else>-</span>
+                </template>
+              </el-table-column>
               <el-table-column prop="descript" label="介绍" header-align="center" align="center"></el-table-column>
               <el-table-column prop="showStatus" label="显示状态" header-align="center" align="center">
                 <template v-slot="scope">

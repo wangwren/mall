@@ -4,8 +4,8 @@
           <el-form-item label="品牌名" prop="name">
         <el-input v-model="dataForm.name" placeholder="品牌名"></el-input>
       </el-form-item>
-          <el-form-item label="品牌logo地址" prop="logo">
-        <el-input v-model="dataForm.logo" placeholder="品牌logo地址"></el-input>
+          <el-form-item label="品牌Logo" prop="logo">
+        <CosImageUpload v-model="dataForm.logo" custom-dir="brand" upload-text="上传Logo" />
       </el-form-item>
           <el-form-item label="介绍" prop="descript">
         <el-input v-model="dataForm.descript" placeholder="介绍"></el-input>
@@ -31,6 +31,7 @@
 import { reactive, ref } from "vue";
 import baseService from "@/service/baseService";
 import { ElMessage } from "element-plus";
+import CosImageUpload from "@/components/cos-image-upload";
 const emit = defineEmits(["refreshDataList"]);
 
 const visible = ref(false);

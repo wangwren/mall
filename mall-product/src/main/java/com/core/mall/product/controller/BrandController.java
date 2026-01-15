@@ -9,7 +9,9 @@ import com.core.mall.common.validator.group.DefaultGroup;
 import com.core.mall.common.validator.group.UpdateGroup;
 import com.core.mall.product.dto.BrandDTO;
 import com.core.mall.product.service.BrandService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -50,10 +52,12 @@ public class BrandController {
         return new Result<BrandDTO>().ok(data);
     }
 
+    /**
+     * 如果不使用分组，可以使用 @Valid做校验
+     * 如果使用分组，需要使用 @Validated 做校验,并指定要用的分组;如果用了分组，那么其他字段的校验都要定义分组，否则校验不生效
+     */
     @PostMapping
-    public Result save(@RequestBody BrandDTO dto){
-        //效验数据
-        ValidatorUtils.validateEntity(dto, AddGroup.class, DefaultGroup.class);
+    public Result save(@RequestBody @Validated(AddGroup.class) BrandDTO dto){
 
         brandService.save(dto);
 
@@ -61,9 +65,7 @@ public class BrandController {
     }
 
     @PutMapping
-    public Result update(@RequestBody BrandDTO dto){
-        //效验数据
-        ValidatorUtils.validateEntity(dto, UpdateGroup.class, DefaultGroup.class);
+    public Result update(@RequestBody @Validated(UpdateGroup.class) BrandDTO dto){
 
         brandService.update(dto);
 

@@ -253,6 +253,7 @@ Content-Type: application/json
 ```
 
 ### 前端示例
+前端直传会有**跨域问题**，可参考官方文档配置[Web 端直传实践](https://cloud.tencent.com/document/product/436/9067)
 
 #### JavaScript (原生)
 ```javascript

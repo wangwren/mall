@@ -1,26 +1,19 @@
-/**
- * Copyright (c) 2018 人人开源 All rights reserved.
- *
- * https://www.renren.io
- *
- * 版权所有,侵权必究!
- */
-
 package com.core.mall.common.exception;
 
 import com.core.mall.common.utils.Result;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.stream.Collectors;
@@ -37,11 +30,27 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     /**
+     * 获取请求上下文信息
+     */
+    private String getRequestInfo() {
+        try {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+                return String.format("[%s %s]", request.getMethod(), request.getRequestURI());
+            }
+        } catch (Exception e) {
+            // 忽略获取请求信息时的异常
+        }
+        return "[Unknown Request]";
+    }
+
+    /**
      * 处理自定义异常
      */
     @ExceptionHandler(RenException.class)
     public Result handleRenException(RenException ex) {
-        log.error("业务异常: code={}, msg={}", ex.getCode(), ex.getMsg(), ex);
+        log.error("{} 业务异常: code={}, msg={}", getRequestInfo(), ex.getCode(), ex.getMsg(), ex);
 
         Result result = new Result();
         result.error(ex.getCode(), ex.getMsg());
@@ -53,7 +62,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DuplicateKeyException.class)
     public Result handleDuplicateKeyException(DuplicateKeyException ex) {
-        log.error("数据库唯一键冲突", ex);
+        log.error("{} 数据库唯一键冲突", getRequestInfo(), ex);
 
         Result result = new Result();
         result.error(ErrorCode.DB_RECORD_EXISTS);
@@ -66,7 +75,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MyBatisSystemException.class)
     public Result handleMyBatisSystemException(MyBatisSystemException ex) {
-        log.error("MyBatis系统异常", ex);
+        log.error("{} MyBatis系统异常", getRequestInfo(), ex);
 
         String errorMsg = "数据库操作失败";
 
@@ -91,7 +100,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(PersistenceException.class)
     public Result handlePersistenceException(PersistenceException ex) {
-        log.error("MyBatis持久化异常", ex);
+        log.error("{} MyBatis持久化异常", getRequestInfo(), ex);
         return new Result().error(ErrorCode.INTERNAL_SERVER_ERROR, "数据持久化失败");
     }
 
@@ -100,7 +109,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DataAccessException.class)
     public Result handleDataAccessException(DataAccessException ex) {
-        log.error("数据访问异常", ex);
+        log.error("{} 数据访问异常", getRequestInfo(), ex);
         return new Result().error(ErrorCode.INTERNAL_SERVER_ERROR, "数据访问失败");
     }
 
@@ -113,7 +122,16 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining("; "));
 
-        log.error("参数校验失败: {}", errorMsg);
+        // 详细的字段错误信息
+        String fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> String.format("字段[%s.%s]: %s (拒绝值: %s)",
+                        error.getObjectName(),
+                        error.getField(),
+                        error.getDefaultMessage(),
+                        error.getRejectedValue()))
+                .collect(Collectors.joining("; "));
+
+        log.error("{} 参数校验失败 - {}", getRequestInfo(), fieldErrors);
         return new Result().error(ErrorCode.PARAMS_GET_ERROR, errorMsg);
     }
 
@@ -126,7 +144,16 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining("; "));
 
-        log.error("参数绑定失败: {}", errorMsg);
+        // 详细的字段错误信息
+        String fieldErrors = ex.getFieldErrors().stream()
+                .map(error -> String.format("字段[%s.%s]: %s (拒绝值: %s)",
+                        error.getObjectName(),
+                        error.getField(),
+                        error.getDefaultMessage(),
+                        error.getRejectedValue()))
+                .collect(Collectors.joining("; "));
+
+        log.error("{} 参数绑定失败 - {}", getRequestInfo(), fieldErrors);
         return new Result().error(ErrorCode.PARAMS_GET_ERROR, errorMsg);
     }
 
@@ -135,8 +162,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Result handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        log.error("参数类型不匹配: 参数名={}, 期望类型={}, 实际值={}",
-                ex.getName(), ex.getRequiredType(), ex.getValue());
+        log.error("{} 参数类型不匹配: 参数名={}, 期望类型={}, 实际值={}",
+                getRequestInfo(), ex.getName(), ex.getRequiredType(), ex.getValue());
 
         String errorMsg = String.format("参数 '%s' 类型错误", ex.getName());
         return new Result().error(ErrorCode.PARAMS_GET_ERROR, errorMsg);
@@ -147,7 +174,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public Result handleIllegalArgumentException(IllegalArgumentException ex) {
-        log.error("非法参数异常", ex);
+        log.error("{} 非法参数异常", getRequestInfo(), ex);
 
         String errorMsg = ex.getMessage() != null ? ex.getMessage() : "参数错误";
         return new Result().error(ErrorCode.PARAMS_GET_ERROR, errorMsg);
@@ -158,7 +185,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NullPointerException.class)
     public Result handleNullPointerException(NullPointerException ex) {
-        log.error("空指针异常", ex);
+        log.error("{} 空指针异常", getRequestInfo(), ex);
         return new Result().error(ErrorCode.INTERNAL_SERVER_ERROR, "系统内部错误");
     }
 
@@ -167,7 +194,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception ex) {
-        log.error("未捕获的异常", ex);
+        log.error("{} 未捕获的异常", getRequestInfo(), ex);
         return new Result().error(ErrorCode.INTERNAL_SERVER_ERROR, "系统繁忙，请稍后重试");
     }
 }
